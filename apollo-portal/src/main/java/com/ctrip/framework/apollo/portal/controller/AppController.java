@@ -56,7 +56,6 @@ public class AppController {
   @Autowired
   private RolePermissionService rolePermissionService;
 
-
   @RequestMapping(value = "", method = RequestMethod.GET)
   public List<App> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
     if (StringUtils.isEmpty(appIds)) {
@@ -91,7 +90,7 @@ public class AppController {
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
-  @RequestMapping(value = "/{appId}", method = RequestMethod.PUT)
+  @RequestMapping(value = "/{appId:.+}", method = RequestMethod.PUT)
   public void update(@PathVariable String appId, @RequestBody AppModel appModel) {
     if (!Objects.equals(appId, appModel.getAppId())) {
       throw new BadRequestException("The App Id of path variable and request body is different");
@@ -136,7 +135,7 @@ public class AppController {
     return ResponseEntity.ok().build();
   }
 
-  @RequestMapping(value = "/{appId}", method = RequestMethod.GET)
+  @RequestMapping(value = "/{appId:.+}", method = RequestMethod.GET)
   public App load(@PathVariable String appId) {
 
     return appService.load(appId);
@@ -179,13 +178,13 @@ public class AppController {
       throw new BadRequestException(String.format("AppId格式错误: %s", InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
     }
 
-    App app = new App();
-    app.setAppId(appId);
-    app.setName(appName);
-    app.setOwnerName(ownerName);
-    app.setOrgId(orgId);
-    app.setOrgName(orgName);
+    return App.builder()
+            .appId(appId)
+            .name(appName)
+            .ownerName(ownerName)
+            .orgId(orgId)
+            .orgName(orgName)
+            .build();
 
-    return app;
   }
 }
